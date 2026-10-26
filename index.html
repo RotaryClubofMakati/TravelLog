@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Travel Log System</title>
+<style>
+  :root{
+    --ink:#1b2430; --muted:#5d6b7d; --line:#d9dfe7; --bg:#f3f5f8; --card:#fff;
+    --brand:#17458f; --brand-d:#0f2f66; --gold:#f7a81b; --danger:#b3261e; --ok:#1c7c4a;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{font:14px/1.45 "Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;color:var(--ink);background:var(--bg)}
+  button,input,select,textarea{font:inherit;color:inherit}
+  header.top{background:var(--brand);color:#fff;border-bottom:4px solid var(--gold)}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 16px}
+  .top .wrap{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding-top:12px;padding-bottom:0}
+  .top h1{font-size:18px;margin:0;font-weight:700;letter-spacing:.2px;padding-bottom:10px}
+  .top h1 small{display:block;font-weight:400;font-size:12px;opacity:.8}
+  nav{display:flex;gap:2px;margin-left:auto;flex-wrap:wrap}
+  nav button{background:transparent;border:0;color:#cfdcf5;padding:10px 14px;cursor:pointer;border-radius:8px 8px 0 0;font-weight:600}
+  nav button:hover{color:#fff}
+  nav button.on{background:var(--bg);color:var(--brand-d)}
+  main{padding:20px 0 60px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px}
+  .row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+  label.f{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted);font-weight:600}
+  input[type=text],input[type=date],input[type=search],input[type=number],select,textarea{
+    border:1px solid #c3ccd8;border-radius:7px;padding:8px 10px;background:#fff;min-width:0;font-size:14px;color:var(--ink)}
+  input:focus,select:focus,textarea:focus{outline:2px solid #8fb0ec;border-color:var(--brand)}
+  .btn{border:1px solid var(--brand);background:var(--brand);color:#fff;border-radius:7px;padding:8px 14px;cursor:pointer;font-weight:600}
+  .btn:hover{background:var(--brand-d)}
+  .btn.ghost{background:#fff;color:var(--brand)}
+  .btn.ghost:hover{background:#eef3fb}
+  .btn.danger{background:#fff;border-color:#e3b4b0;color:var(--danger)}
+  .btn.danger:hover{background:#fdeceb}
+  .btn.sm{padding:4px 9px;font-size:12px}
+  .btn[disabled]{opacity:.55;cursor:default}
+  .seg{display:inline-flex;border:1px solid var(--brand);border-radius:8px;overflow:hidden}
+  .seg button{border:0;background:#fff;color:var(--brand);padding:8px 16px;font-weight:700;cursor:pointer}
+  .seg button.on{background:var(--brand);color:#fff}
+  .grow{flex:1 1 200px}
+  .spacer{height:14px}
+  .muted{color:var(--muted)}
+  h2{font-size:16px;margin:0 0 10px}
+  /* editor grid */
+  .scroll{overflow-x:auto}
+  table.grid{border-collapse:collapse;width:100%;min-width:860px}
+  table.grid th{font-size:12px;text-align:left;color:var(--muted);padding:6px 6px;border-bottom:2px solid var(--line);white-space:nowrap}
+  table.grid td{padding:4px;vertical-align:top;border-bottom:1px solid #edf0f4}
+  table.grid td.n{width:34px;color:var(--muted);padding-top:12px;text-align:right}
+  table.grid input,table.grid textarea{width:100%}
+  table.grid textarea{resize:vertical;min-height:37px;height:37px;line-height:1.3}
+  .amt{text-align:right}
+  .totalbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px}
+  .total{font-size:18px;font-weight:700}
+  .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#1b2430;color:#fff;padding:10px 16px;border-radius:8px;z-index:50;box-shadow:0 6px 24px rgba(0,0,0,.25);max-width:90vw}
+  .toast.err{background:var(--danger)}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:14px}
+  .stat{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .stat b{display:block;font-size:20px}
+  .stat span{font-size:12px;color:var(--muted)}
+  table.list{border-collapse:collapse;width:100%;min-width:760px}
+  table.list th{font-size:12px;color:var(--muted);text-align:left;padding:8px;border-bottom:2px solid var(--line);background:#fafbfd;position:sticky;top:0}
+  table.list td{padding:8px;border-bottom:1px solid #edf0f4;vertical-align:top}
+  table.list tr:hover td{background:#f8fafd}
+  td.r,th.r{text-align:right}
+  .tag{display:inline-block;padding:1px 8px;border-radius:99px;font-size:11px;font-weight:700;color:#fff}
+  .tag.RCM{background:#17458f}.tag.MRCFI{background:#a35f00}
+  .acts{display:flex;gap:6px;flex-wrap:wrap}
+  .empty{padding:36px;text-align:center;color:var(--muted)}
+  .sigcols{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .sigcols textarea{width:100%;min-height:110px}
+  .hide{display:none!important}
+  /* gate */
+  #gate{max-width:360px;margin:80px auto}
+  /* ===== printable sheet (screen preview + print) ===== */
+  .paper{background:#fff;width:297mm;max-width:100%;margin:0 auto;padding:12mm 15mm 16mm;border:1px solid var(--line);box-shadow:0 2px 14px rgba(0,0,0,.08);color:#000;font-family:Arial,Helvetica,sans-serif}
+  .paper h1.tl{font-size:17px;letter-spacing:.3px;color:#156082;margin:0 0 14px;font-weight:700}
+  .paper .org{font-size:14px;font-weight:700;line-height:1.35;margin-bottom:12px}
+  .paper .lbl{font-size:11px;margin:0 0 4px}
+  .paper table{border-collapse:collapse;width:100%;table-layout:fixed}
+  .paper table.sig th{background:#d9d9d9;font-size:10px;border:1px solid #000;padding:2px 4px}
+  .paper table.sig td{font-size:10.5px;border:1px solid #000;padding:3px 4px;height:21px}
+  .paper .meta{display:flex;border-top:1px solid #000;border-bottom:1px solid #000;margin:16px 0 12px;padding:8px 0;font-size:11px;font-weight:700}
+  .paper .meta div{flex:1}
+  .paper .meta span{font-weight:400;margin-left:6px}
+  .paper table.ent th{border:1px solid #000;font-size:10.5px;padding:6px 4px;text-align:center;background:#fff}
+  .paper table.ent td{border:1px solid #000;font-size:10.5px;padding:4px 5px;vertical-align:top;height:27px;word-wrap:break-word;overflow-wrap:anywhere}
+  .paper table.ent td.c{text-align:center}
+  .paper table.ent td.a{text-align:right}
+  .paper table.ent tr{page-break-inside:avoid;break-inside:avoid}
+  .paper table.ent thead{display:table-header-group}
+  .paper table.ent tfoot{display:table-footer-group}
+  .paper table.ent tfoot td{border:0;height:34px;padding:0}
+  .paper .fn{font-size:9px;line-height:1.3;border-top:1px solid #000;padding-top:3px;margin-top:10px}
+  .paper .totrow td{font-weight:700}
+  .previewbar{max-width:297mm;margin:0 auto 12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  @page{size:A4 landscape;margin:10mm 12mm 14mm}
+  @page :first{@top-left{content:none}}
+  @page{@top-left{content:"Rotary Club of Makati – Check and Disbursement Documents Travel Log";font:bold 8px Arial}
+        @bottom-right{content:"P" counter(page) " of " counter(pages);font:9px Arial}}
+  @media print{
+    body{background:#fff}
+    header.top,.previewbar,.toast,main>section:not(#v-preview){display:none!important}
+    main{padding:0}.wrap{max-width:none;padding:0}
+    .paper{border:0;box-shadow:none;margin:0;padding:0;width:auto}
+    .paper .fn{position:fixed;left:0;right:0;bottom:0;background:#fff;margin:0}
+    .paper table.sig th,.paper table.ent th,.paper .meta{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  }
+  @media (max-width:640px){.sigcols{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <h1>Travel Log System<small>Check &amp; Disbursement Documents · RCM · MRCFI</small></h1>
+    <nav id="nav">
+      <button data-v="editor" class="on">New / Edit Log</button>
+      <button data-v="inventory">Inventory</button>
+      <button data-v="sigs">Signatories</button>
+    </nav>
+  </div>
+</header>
+
+<main><div class="wrap">
+
+  <div id="gate" class="card hide">
+    <h2>Passcode required</h2>
+    <label class="f">Passcode<input type="text" id="gateIn" autocomplete="off"></label>
+    <div class="spacer"></div>
+    <button class="btn" id="gateBtn">Open</button>
+  </div>
+
+  <div id="loading" class="empty">Loading…</div>
+
+  <!-- ============ EDITOR ============ -->
+  <section id="v-editor" class="hide">
+    <div class="card">
+      <div class="row">
+        <div>
+          <div class="muted" style="font-size:12px;font-weight:600;margin-bottom:4px">Organization</div>
+          <div class="seg" id="entSeg">
+            <button data-e="RCM" class="on">RCM</button>
+            <button data-e="MRCFI">MRCFI</button>
+          </div>
+        </div>
+        <label class="f grow">Travel Log No.
+          <span style="display:flex;gap:6px">
+            <input type="text" id="logNo" style="flex:1" placeholder="e.g. RCM-2026-001">
+            <button class="btn ghost sm" id="autoNo" title="Suggest next number">Auto</button>
+          </span>
+        </label>
+        <label class="f">Travel Log Date<input type="date" id="logDate"></label>
+        <div id="editBadge" class="muted hide" style="padding-bottom:8px"></div>
+      </div>
+    </div>
+    <div class="spacer"></div>
+
+    <div class="card">
+      <h2 id="entTitle">Checks</h2>
+      <div class="scroll">
+        <table class="grid">
+          <thead><tr>
+            <th>#</th><th style="width:21%">Payee Name</th><th style="width:15%">Check No.</th>
+            <th style="width:14%">Date</th><th style="width:14%">Amount (₱)</th><th>Remarks / Project Brief</th><th></th>
+          </tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+      <div class="totalbar">
+        <div class="row">
+          <button class="btn ghost" id="addRow">+ Add check</button>
+          <span class="muted">Set A / Set B signature boxes print blank for the signatories.</span>
+        </div>
+        <div>Total <span class="total" id="total">₱0.00</span> <span class="muted" id="cnt"></span></div>
+      </div>
+    </div>
+    <div class="spacer"></div>
+    <div class="row">
+      <button class="btn" id="save">Save log</button>
+      <button class="btn ghost" id="savePrev">Save &amp; preview / print</button>
+      <button class="btn ghost" id="prevOnly">Preview without saving</button>
+      <button class="btn danger" id="newLog">Clear / start new</button>
+    </div>
+  </section>
+
+  <!-- ============ INVENTORY ============ -->
+  <section id="v-inventory" class="hide">
+    <div class="stats" id="stats"></div>
+    <div class="card">
+      <div class="row" style="margin-bottom:12px">
+        <label class="f">Organization
+          <select id="fEnt"><option value="">All</option><option>RCM</option><option>MRCFI</option></select></label>
+        <label class="f">From<input type="date" id="fFrom"></label>
+        <label class="f">To<input type="date" id="fTo"></label>
+        <label class="f grow">Search (log no., payee, check no., remarks)<input type="search" id="fQ" placeholder="Search…"></label>
+        <div class="seg" id="modeSeg">
+          <button data-m="logs" class="on">By log</button>
+          <button data-m="checks">All checks</button>
+        </div>
+        <button class="btn ghost" id="csv">Export CSV</button>
+        <a class="btn ghost" id="dbLink" href="#" target="_blank" style="text-decoration:none">Open database sheet</a>
+      </div>
+      <div class="scroll" id="invTable"></div>
+    </div>
+  </section>
+
+  <!-- ============ SIGNATORIES ============ -->
+  <section id="v-sigs" class="hide">
+    <div class="card" id="sigCards"></div>
+  </section>
+
+  <!-- ============ PREVIEW ============ -->
+  <section id="v-preview" class="hide">
+    <div class="previewbar">
+      <button class="btn" id="doPrint">Print / Save as PDF</button>
+      <button class="btn ghost" id="backBtn">← Back</button>
+      <label class="f" style="flex-direction:row;align-items:center;gap:6px">Rows on sheet <input type="number" id="minRows" min="1" max="200" value="40" style="width:72px"></label>
+      <span class="muted">Tip: in the print dialog choose <b>A4 · Landscape</b> and turn off “Headers and footers”.</span>
+    </div>
+    <div class="paper" id="paper"></div>
+  </section>
+
+</div></main>
+
+<div id="toast" class="toast hide"></div>
+
+<script>
+(function(){
+'use strict';
+var S={cfg:null,logs:[],entries:[],entity:'RCM',editingId:null,rows:[],code:'',view:'editor',prevFrom:'editor',mode:'logs',dbUrl:''};
+var $=function(id){return document.getElementById(id)};
+
+/* ---------- server bridge ---------- */
+function call(fn){
+  var args=[].slice.call(arguments,1);
+  return new Promise(function(res,rej){
+    google.script.run.withSuccessHandler(res).withFailureHandler(function(e){rej(e)})[fn].apply(google.script.run,[S.code].concat(args));
+  });
+}
+function toast(msg,err){
+  var t=$('toast');t.textContent=msg;t.className='toast'+(err?' err':'');
+  clearTimeout(toast._t);toast._t=setTimeout(function(){t.className='toast hide'},err?5000:2400);
+}
+function errMsg(e){var m=(e&&e.message)||String(e);return m.replace(/^Error:\s*/,'')}
+
+/* ---------- formatting ---------- */
+var MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+function pad(n){return ('0'+n).slice(-2)}
+function todayIso(){var d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
+function longDate(iso){var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso||'');return m?MONTHS[+m[2]-1]+' '+(+m[3])+', '+m[1]:''}
+function shortDate(iso){var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso||'');return m?m[2]+'/'+m[3]+'/'+m[1]:''}
+function num(v){var n=parseFloat(String(v==null?'':v).replace(/[^0-9.\-]/g,''));return isNaN(n)?0:n}
+function money(n){return n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function peso(n){return 'P'+money(n)}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function incCheck(s){
+  s=String(s||'').trim();
+  if(!/^\d+$/.test(s)) return '';
+  try{return (BigInt(s)+1n).toString().padStart(s.length,'0')}catch(e){return ''}
+}
+
+/* ---------- navigation ---------- */
+function show(v){
+  S.view=v;
+  ['editor','inventory','sigs','preview'].forEach(function(x){$('v-'+x).classList.toggle('hide',x!==v)});
+  [].forEach.call($('nav').children,function(b){b.classList.toggle('on',b.dataset.v===v)});
+  if(v==='inventory')renderInventory();
+  if(v==='sigs')renderSigs();
+  window.scrollTo(0,0);
+}
+$('nav').addEventListener('click',function(e){var b=e.target.closest('button');if(b)show(b.dataset.v)});
+
+/* ---------- editor ---------- */
+function blankRow(prev){
+  return {payee:'',checkNo:prev?incCheck(prev.checkNo):'',checkDate:prev?prev.checkDate:($('logDate').value||todayIso()),amount:'',remarks:''};
+}
+function renderRows(focusLast){
+  var tb=$('rows');tb.innerHTML='';
+  S.rows.forEach(function(r,i){
+    var tr=document.createElement('tr');
+    tr.innerHTML='<td class="n">'+(i+1)+'.</td>'+
+      '<td><input type="text" data-k="payee" placeholder="Payee name"></td>'+
+      '<td><input type="text" data-k="checkNo" inputmode="numeric" placeholder="Check no."></td>'+
+      '<td><input type="date" data-k="checkDate"></td>'+
+      '<td><input type="text" class="amt" data-k="amount" inputmode="decimal" placeholder="0.00"></td>'+
+      '<td><textarea data-k="remarks" placeholder="CV# and project brief"></textarea></td>'+
+      '<td><button class="btn danger sm" data-del="'+i+'" title="Remove line">✕</button></td>';
+    [].forEach.call(tr.querySelectorAll('[data-k]'),function(el){
+      el.value=r[el.dataset.k]||'';
+      el.addEventListener('input',function(){r[el.dataset.k]=el.value;updateTotal()});
+      if(el.dataset.k==='amount')el.addEventListener('blur',function(){if(el.value.trim()!==''){el.value=money(num(el.value));r.amount=el.value;updateTotal()}});
+    });
+    tb.appendChild(tr);
+  });
+  updateTotal();
+  if(focusLast){var f=tb.lastChild&&tb.lastChild.querySelector('input');if(f)f.focus()}
+}
+function updateTotal(){
+  var t=S.rows.reduce(function(s,r){return s+num(r.amount)},0);
+  var c=S.rows.filter(function(r){return r.payee.trim()||num(r.amount)}).length;
+  $('total').textContent='₱'+money(t);
+  $('cnt').textContent='· '+c+' check'+(c===1?'':'s');
+}
+$('rows').addEventListener('click',function(e){
+  var b=e.target.closest('[data-del]');if(!b)return;
+  S.rows.splice(+b.dataset.del,1);if(!S.rows.length)S.rows.push(blankRow());renderRows();
+});
+$('addRow').onclick=function(){
+  if(S.rows.length>=200)return toast('Maximum 200 lines per log.',true);
+  S.rows.push(blankRow(S.rows[S.rows.length-1]));renderRows(true);
+};
+$('entSeg').addEventListener('click',function(e){
+  var b=e.target.closest('button');if(!b)return;
+  if(S.editingId)return toast('Organization can’t change on a saved log. Start a new log instead.',true);
+  S.entity=b.dataset.e;syncEntity();suggestNo();
+});
+function syncEntity(){
+  [].forEach.call($('entSeg').children,function(b){b.classList.toggle('on',b.dataset.e===S.entity)});
+  $('entTitle').textContent='Checks — '+S.cfg.entities[S.entity].name;
+}
+function suggestNo(){
+  if(S.editingId)return;
+  call('api_nextNo',S.entity,$('logDate').value||todayIso()).then(function(n){$('logNo').value=n}).catch(function(e){toast(errMsg(e),true)});
+}
+$('autoNo').onclick=function(){
+  call('api_nextNo',S.entity,$('logDate').value||todayIso()).then(function(n){$('logNo').value=n}).catch(function(e){toast(errMsg(e),true)});
+};
+$('logDate').addEventListener('change',function(){
+  if(!S.editingId&&/^(RCM|MRCFI)-\d{4}-\d{3}$/.test($('logNo').value))suggestNo();
+});
+function newLog(){
+  S.editingId=null;S.rows=[blankRow()];
+  $('logDate').value=todayIso();$('editBadge').classList.add('hide');
+  syncEntity();renderRows();suggestNo();
+}
+$('newLog').onclick=function(){
+  var dirty=S.rows.some(function(r){return r.payee||r.amount||r.remarks});
+  if(dirty&&!confirm('Clear the form and start a new log? Unsaved changes will be lost.'))return;
+  newLog();
+};
+function payload(){
+  return {id:S.editingId,entity:S.entity,logNo:$('logNo').value,logDate:$('logDate').value,rows:S.rows};
+}
+function save(thenPreview){
+  var btns=['save','savePrev'].map($);btns.forEach(function(b){b.disabled=true});
+  return call('api_saveLog',payload()).then(function(r){
+    S.editingId=r.id;toast('Log saved ✓');return reload();
+  }).then(function(){
+    var l=S.logs.filter(function(x){return x.id===S.editingId})[0];
+    if(l){$('editBadge').textContent='Editing saved log';$('editBadge').classList.remove('hide')}
+    if(thenPreview)openPreviewFromEditor();
+  }).catch(function(e){toast(errMsg(e),true)}).then(function(){btns.forEach(function(b){b.disabled=false})});
+}
+$('save').onclick=function(){save(false)};
+$('savePrev').onclick=function(){save(true)};
+$('prevOnly').onclick=openPreviewFromEditor;
+function editorLog(){
+  var rows=S.rows.filter(function(r){return r.payee.trim()||num(r.amount)||r.checkNo.trim()||r.remarks.trim()}).map(function(r){
+    return {payee:r.payee,checkNo:r.checkNo,checkDate:r.checkDate,amount:num(r.amount),remarks:r.remarks};
+  });
+  return {entity:S.entity,logNo:$('logNo').value,logDate:$('logDate').value,rows:rows};
+}
+function openPreviewFromEditor(){S.prevFrom='editor';renderSheet(editorLog());show('preview')}
+
+function loadIntoEditor(id){
+  var l=S.logs.filter(function(x){return x.id===id})[0];if(!l)return;
+  S.editingId=id;S.entity=l.entity;
+  $('logNo').value=l.logNo;$('logDate').value=l.logDate;
+  S.rows=S.entries.filter(function(e){return e.logId===id}).sort(function(a,b){return a.line-b.line}).map(function(e){
+    return {payee:e.payee,checkNo:e.checkNo,checkDate:e.checkDate,amount:money(e.amount),remarks:e.remarks};
+  });
+  if(!S.rows.length)S.rows.push(blankRow());
+  $('editBadge').textContent='Editing saved log';$('editBadge').classList.remove('hide');
+  syncEntity();renderRows();show('editor');
+}
+
+/* ---------- printable sheet ---------- */
+function renderSheet(log){
+  var ent=S.cfg.entities[log.entity];
+  S.lastLog=log;
+  var minRows=Math.max(1,Math.min(200,parseInt($('minRows').value,10)||40));
+  var n=Math.max(log.rows.length,minRows);
+  var h='';
+  h+='<h1 class="tl">TRAVEL LOG</h1>';
+  h+='<div class="org">'+esc(ent.name)+'<br>'+esc(ent.short)+'<br>Check and Disbursement Documents</div>';
+  h+='<p class="lbl">Signatories:</p>';
+  var rowsN=Math.max((ent.sigs.A||[]).length,(ent.sigs.B||[]).length);
+  var st='<table class="sig"><tr><th>SET A</th><th>SET B</th></tr>';
+  for(var i=0;i<rowsN;i++){
+    st+='<tr><td>'+(ent.sigs.A[i]?(i+1)+'. '+esc(ent.sigs.A[i]):'')+'</td><td>'+(ent.sigs.B[i]?(i+1)+'. '+esc(ent.sigs.B[i]):'')+'</td></tr>';
+  }
+  st+='</table>';
+  h+=st;
+  h+='<div class="meta"><div>Travel Log No:<span>'+esc(log.logNo)+'</span></div><div>Date:<span>'+esc(longDate(log.logDate))+'</span></div></div>';
+  h+='<table class="ent"><colgroup><col style="width:4%"><col style="width:20%"><col style="width:12%"><col style="width:9%"><col style="width:11%"><col style="width:30%"><col style="width:7%"><col style="width:7%"></colgroup>';
+  h+='<thead><tr><th rowspan="2">No.</th><th rowspan="2">Payee Name</th><th rowspan="2">Check No.</th><th rowspan="2">Date</th><th rowspan="2">Amount</th><th rowspan="2">Remarks/Project Brief</th><th colspan="2">Signatories<sup>1</sup></th></tr><tr><th>Set A</th><th>Set B</th></tr></thead>';
+  h+='<tbody>';
+  for(var j=0;j<n;j++){
+    var r=log.rows[j];
+    h+='<tr><td class="c">'+(j+1)+'.</td>'+
+      '<td>'+(r?esc(r.payee):'')+'</td><td class="c">'+(r?esc(r.checkNo):'')+'</td>'+
+      '<td class="c">'+(r?esc(shortDate(r.checkDate)):'')+'</td>'+
+      '<td class="a">'+(r&&(r.amount||r.payee)?esc(peso(r.amount)):'')+'</td>'+
+      '<td>'+(r?esc(r.remarks):'')+'</td><td></td><td></td></tr>';
+  }
+  h+='</tbody><tfoot><tr><td colspan="8"></td></tr></tfoot></table>';
+  h+='<div class="fn"><sup>1</sup> Set A should sign the first or left signature box of the check. Ensure that all reviewers, including Controller for disbursements above P100,000, have reviewed and signed off on the disbursement voucher before having the checks signed by authorized check signatories.</div>';
+  $('paper').innerHTML=h;
+}
+$('doPrint').onclick=function(){window.print()};
+$('minRows').addEventListener('input',function(){if(S.lastLog)renderSheet(S.lastLog)});
+$('backBtn').onclick=function(){show(S.prevFrom)};
+
+/* ---------- inventory ---------- */
+function filtered(){
+  var ent=$('fEnt').value,from=$('fFrom').value,to=$('fTo').value,q=$('fQ').value.trim().toLowerCase();
+  var byId={};S.logs.forEach(function(l){byId[l.id]=l});
+  var entries=S.entries.filter(function(e){return byId[e.logId]}).map(function(e){return Object.assign({log:byId[e.logId]},e)});
+  var hit=function(l,e){
+    if(ent&&l.entity!==ent)return false;
+    if(from&&l.logDate<from)return false;
+    if(to&&l.logDate>to)return false;
+    return true;
+  };
+  var logs=S.logs.filter(function(l){
+    if(!hit(l,null))return false;
+    if(!q)return true;
+    if((l.logNo+' '+l.entity).toLowerCase().indexOf(q)>=0)return true;
+    return entries.some(function(e){return e.logId===l.id&&(e.payee+' '+e.checkNo+' '+e.remarks).toLowerCase().indexOf(q)>=0});
+  }).sort(function(a,b){return a.logDate<b.logDate?1:a.logDate>b.logDate?-1:0});
+  var ids={};logs.forEach(function(l){ids[l.id]=1});
+  var ents=entries.filter(function(e){
+    if(!ids[e.logId])return false;
+    if(!q)return true;
+    return (e.payee+' '+e.checkNo+' '+e.remarks+' '+e.log.logNo).toLowerCase().indexOf(q)>=0;
+  }).sort(function(a,b){return a.log.logDate<b.log.logDate?1:a.log.logDate>b.log.logDate?-1:a.line-b.line});
+  return {logs:logs,entries:ents};
+}
+function renderInventory(){
+  var f=filtered();
+  var total=f.entries.reduce(function(s,e){return s+e.amount},0);
+  $('stats').innerHTML=
+    '<div class="stat"><b>'+f.logs.length+'</b><span>Travel logs</span></div>'+
+    '<div class="stat"><b>'+f.entries.length+'</b><span>Checks listed</span></div>'+
+    '<div class="stat"><b>₱'+money(total)+'</b><span>Total amount</span></div>';
+  var el=$('invTable'),h;
+  if(S.mode==='logs'){
+    if(!f.logs.length){el.innerHTML='<div class="empty">No travel logs match. Create one in “New / Edit Log”.</div>';return}
+    h='<table class="list"><thead><tr><th>Log No.</th><th>Org</th><th>Log date</th><th class="r">Checks</th><th class="r">Total</th><th>Last saved</th><th>Actions</th></tr></thead><tbody>';
+    f.logs.forEach(function(l){
+      h+='<tr><td><b>'+esc(l.logNo)+'</b></td><td><span class="tag '+esc(l.entity)+'">'+esc(l.entity)+'</span></td>'+
+        '<td>'+esc(longDate(l.logDate))+'</td><td class="r">'+l.checks+'</td><td class="r">'+esc(peso(l.total))+'</td>'+
+        '<td class="muted">'+esc(l.updatedAt)+'</td>'+
+        '<td><div class="acts"><button class="btn ghost sm" data-open="'+esc(l.id)+'">Edit</button>'+
+        '<button class="btn ghost sm" data-print="'+esc(l.id)+'">Print</button>'+
+        '<button class="btn danger sm" data-rm="'+esc(l.id)+'">Delete</button></div></td></tr>';
+    });
+    el.innerHTML=h+'</tbody></table>';
+  }else{
+    if(!f.entries.length){el.innerHTML='<div class="empty">No checks match.</div>';return}
+    h='<table class="list"><thead><tr><th>Log No.</th><th>Org</th><th>Payee</th><th>Check No.</th><th>Date</th><th class="r">Amount</th><th>Remarks</th></tr></thead><tbody>';
+    f.entries.forEach(function(e){
+      h+='<tr><td><a href="#" data-open="'+esc(e.logId)+'">'+esc(e.log.logNo)+'</a></td><td><span class="tag '+esc(e.log.entity)+'">'+esc(e.log.entity)+'</span></td>'+
+        '<td>'+esc(e.payee)+'</td><td>'+esc(e.checkNo)+'</td><td>'+esc(shortDate(e.checkDate))+'</td>'+
+        '<td class="r">'+esc(peso(e.amount))+'</td><td>'+esc(e.remarks)+'</td></tr>';
+    });
+    el.innerHTML=h+'</tbody></table>';
+  }
+}
+$('invTable').addEventListener('click',function(e){
+  var t=e.target.closest('[data-open],[data-print],[data-rm]');if(!t)return;
+  e.preventDefault();
+  if(t.dataset.open)return loadIntoEditor(t.dataset.open);
+  if(t.dataset.print){
+    var id=t.dataset.print,l=S.logs.filter(function(x){return x.id===id})[0];
+    var rows=S.entries.filter(function(x){return x.logId===id}).sort(function(a,b){return a.line-b.line});
+    S.prevFrom='inventory';renderSheet({entity:l.entity,logNo:l.logNo,logDate:l.logDate,rows:rows});return show('preview');
+  }
+  if(t.dataset.rm){
+    var lg=S.logs.filter(function(x){return x.id===t.dataset.rm})[0];
+    if(!confirm('Delete '+lg.logNo+' ('+lg.entity+') and all its checks? This cannot be undone.'))return;
+    call('api_deleteLog',lg.id).then(function(){
+      if(S.editingId===lg.id)newLog();
+      toast('Deleted '+lg.logNo);return reload();
+    }).then(renderInventory).catch(function(er){toast(errMsg(er),true)});
+  }
+});
+['fEnt','fFrom','fTo'].forEach(function(id){$(id).addEventListener('change',renderInventory)});
+$('fQ').addEventListener('input',renderInventory);
+$('modeSeg').addEventListener('click',function(e){
+  var b=e.target.closest('button');if(!b)return;S.mode=b.dataset.m;
+  [].forEach.call($('modeSeg').children,function(x){x.classList.toggle('on',x===b)});renderInventory();
+});
+$('csv').onclick=function(){
+  var f=filtered();
+  var q=function(v){v=String(v==null?'':v);return /[",\n\r]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
+  var lines=[['Organization','Travel Log No.','Log Date','Line','Payee Name','Check No.','Check Date','Amount','Remarks'].join(',')];
+  f.entries.forEach(function(e){
+    // leading tab-free: wrap check no. as ="..." so Excel keeps leading zeros
+    lines.push([e.log.entity,e.log.logNo,e.log.logDate,e.line,e.payee,'="'+e.checkNo+'"',e.checkDate,e.amount.toFixed(2),e.remarks].map(function(v,i){return i===5?v:q(v)}).join(','));
+  });
+  var blob=new Blob(['﻿'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='travel-logs-'+todayIso()+'.csv';
+  document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},500);
+};
+
+/* ---------- signatories ---------- */
+function renderSigs(){
+  var h='<p class="muted" style="margin-top:0">One name per line (up to 6 per set). Changes apply to newly printed sheets — they are not stored inside past logs.</p>';
+  Object.keys(S.cfg.entities).forEach(function(c){
+    var e=S.cfg.entities[c];
+    h+='<div style="margin-bottom:22px"><h2>'+esc(e.name)+' '+esc(e.short)+'</h2><div class="sigcols">'+
+      '<label class="f">SET A<textarea data-e="'+c+'" data-s="A">'+esc((e.sigs.A||[]).join('\n'))+'</textarea></label>'+
+      '<label class="f">SET B<textarea data-e="'+c+'" data-s="B">'+esc((e.sigs.B||[]).join('\n'))+'</textarea></label>'+
+      '</div><div class="spacer"></div><button class="btn" data-savesig="'+c+'">Save '+c+' signatories</button></div>';
+  });
+  $('sigCards').innerHTML=h;
+}
+$('sigCards').addEventListener('click',function(e){
+  var b=e.target.closest('[data-savesig]');if(!b)return;
+  var c=b.dataset.savesig,sigs={};
+  ['A','B'].forEach(function(s){
+    sigs[s]=$('sigCards').querySelector('textarea[data-e="'+c+'"][data-s="'+s+'"]').value.split('\n').map(function(x){return x.trim()}).filter(Boolean);
+  });
+  b.disabled=true;
+  call('api_saveSignatories',c,sigs).then(function(){toast(c+' signatories saved ✓');return reload()}).then(renderSigs)
+    .catch(function(er){toast(errMsg(er),true)}).then(function(){b.disabled=false});
+});
+
+/* ---------- boot ---------- */
+function reload(){
+  return call('api_loadAll').then(function(d){
+    S.cfg={entities:d.entities};S.logs=d.logs;S.entries=d.entries;S.dbUrl=d.dbUrl;
+    $('dbLink').href=d.dbUrl;
+  });
+}
+function start(){
+  $('gate').classList.add('hide');
+  reload().then(function(){
+    $('loading').classList.add('hide');
+    $('v-editor').classList.remove('hide');
+    newLog();
+  }).catch(function(e){
+    if(errMsg(e).indexOf('AUTH')>=0){
+      S.code='';try{sessionStorage.removeItem('tl_code')}catch(x){}
+      $('loading').classList.add('hide');$('gate').classList.remove('hide');
+      if(S.triedCode)toast('Wrong passcode.',true);
+    }else{
+      $('loading').innerHTML='Could not load: '+esc(errMsg(e));
+    }
+  });
+}
+$('gateBtn').onclick=function(){
+  S.code=$('gateIn').value;S.triedCode=true;
+  try{sessionStorage.setItem('tl_code',S.code)}catch(x){}
+  $('loading').classList.remove('hide');start();
+};
+$('gateIn').addEventListener('keydown',function(e){if(e.key==='Enter')$('gateBtn').click()});
+try{S.code=sessionStorage.getItem('tl_code')||''}catch(x){}
+start();
+})();
+</script>
+</body>
+</html>
