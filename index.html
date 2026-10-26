@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<base target="_top">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Travel Log System</title>
+<title>Travel Log System – RCM & MRCFI</title>
 <style>
   :root{
     --ink:#1b2430; --muted:#5d6b7d; --line:#d9dfe7; --bg:#f3f5f8; --card:#fff;
@@ -235,12 +234,17 @@
 var S={cfg:null,logs:[],entries:[],entity:'RCM',editingId:null,rows:[],code:'',view:'editor',prevFrom:'editor',mode:'logs',dbUrl:''};
 var $=function(id){return document.getElementById(id)};
 
-/* ---------- server bridge ---------- */
+/* ---------- server bridge (Google Apps Script web app) ---------- */
+// Your deployed Apps Script web app URL (Deploy > Manage deployments > Web app URL).
+var API_URL='https://script.google.com/macros/s/AKfycbzjdHretbErKX3c7N-1ryejOly9EzeXfy3GJZ-siBdiz5cfdaRl-tCJupyWuTxmiu9yIQ/exec';
+
 function call(fn){
   var args=[].slice.call(arguments,1);
-  return new Promise(function(res,rej){
-    google.script.run.withSuccessHandler(res).withFailureHandler(function(e){rej(e)})[fn].apply(google.script.run,[S.code].concat(args));
-  });
+  // No Content-Type header on purpose: plain-text POST avoids a CORS preflight, which Apps Script can't answer.
+  return fetch(API_URL,{method:'POST',redirect:'follow',body:JSON.stringify({fn:fn.replace(/^api_/,''),code:S.code,args:args})})
+    .then(function(r){return r.json()})
+    .catch(function(){throw new Error('NETWORK')})
+    .then(function(j){if(!j.ok)throw new Error(j.error||'Request failed');return j.data});
 }
 function toast(msg,err){
   var t=$('toast');t.textContent=msg;t.className='toast'+(err?' err':'');
@@ -546,12 +550,18 @@ function start(){
     $('v-editor').classList.remove('hide');
     newLog();
   }).catch(function(e){
-    if(errMsg(e).indexOf('AUTH')>=0){
+    var m=errMsg(e);
+    $('v-editor').classList.add('hide');
+    if(m==='AUTH'){
       S.code='';try{sessionStorage.removeItem('tl_code')}catch(x){}
       $('loading').classList.add('hide');$('gate').classList.remove('hide');
       if(S.triedCode)toast('Wrong passcode.',true);
+    }else if(m==='NETWORK'){
+      $('loading').classList.remove('hide');
+      $('loading').innerHTML='Could not reach the server.<br><small>Check that the Apps Script web app is deployed with access “Anyone”, that API_URL in this page is the current /exec link, and that you are online.</small>';
     }else{
-      $('loading').innerHTML='Could not load: '+esc(errMsg(e));
+      $('loading').classList.remove('hide');
+      $('loading').innerHTML=esc(m.replace(/^(SETUP|LOCKED):\s*/,''));
     }
   });
 }
