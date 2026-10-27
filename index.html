@@ -46,7 +46,7 @@
   h2{font-size:16px;margin:0 0 10px}
   /* editor grid */
   .scroll{overflow-x:auto}
-  table.grid{border-collapse:collapse;width:100%;min-width:860px}
+  table.grid{border-collapse:collapse;width:100%;min-width:980px}
   table.grid th{font-size:12px;text-align:left;color:var(--muted);padding:6px 6px;border-bottom:2px solid var(--line);white-space:nowrap}
   table.grid td{padding:4px;vertical-align:top;border-bottom:1px solid #edf0f4}
   table.grid td.n{width:34px;color:var(--muted);padding-top:12px;text-align:right}
@@ -76,18 +76,18 @@
   /* gate */
   #gate{max-width:360px;margin:80px auto}
   /* ===== printable sheet (screen preview + print) ===== */
-  .paper{background:#fff;width:297mm;max-width:100%;margin:0 auto;padding:12mm 15mm 16mm;border:1px solid var(--line);box-shadow:0 2px 14px rgba(0,0,0,.08);color:#000;font-family:Arial,Helvetica,sans-serif}
-  .paper h1.tl{font-size:17px;letter-spacing:.3px;color:#156082;margin:0 0 14px;font-weight:700}
-  .paper .org{font-size:14px;font-weight:700;line-height:1.35;margin-bottom:12px}
+  .paper{background:#fff;width:11in;max-width:100%;margin:0 auto;padding:10mm 12mm 14mm;border:1px solid var(--line);box-shadow:0 2px 14px rgba(0,0,0,.08);color:#000;font-family:Arial,Helvetica,sans-serif}
+  .paper h1.tl{font-size:16px;letter-spacing:.3px;color:#156082;margin:0 0 8px;font-weight:700}
+  .paper .org{font-size:13px;font-weight:700;line-height:1.3;margin-bottom:8px}
   .paper .lbl{font-size:11px;margin:0 0 4px}
   .paper table{border-collapse:collapse;width:100%;table-layout:fixed}
   .paper table.sig th{background:#d9d9d9;font-size:10px;border:1px solid #000;padding:2px 4px}
-  .paper table.sig td{font-size:10.5px;border:1px solid #000;padding:3px 4px;height:21px}
-  .paper .meta{display:flex;border-top:1px solid #000;border-bottom:1px solid #000;margin:16px 0 12px;padding:8px 0;font-size:11px;font-weight:700}
+  .paper table.sig td{font-size:10px;border:1px solid #000;padding:2px 4px;height:18px}
+  .paper .meta{display:flex;border-top:1px solid #000;border-bottom:1px solid #000;margin:10px 0 8px;padding:6px 0;font-size:11px;font-weight:700}
   .paper .meta div{flex:1}
   .paper .meta span{font-weight:400;margin-left:6px}
   .paper table.ent th{border:1px solid #000;font-size:10.5px;padding:6px 4px;text-align:center;background:#fff}
-  .paper table.ent td{border:1px solid #000;font-size:10.5px;padding:4px 5px;vertical-align:top;height:27px;word-wrap:break-word;overflow-wrap:anywhere}
+  .paper table.ent td{border:1px solid #000;font-size:10px;padding:3px 4px;vertical-align:top;height:24px;word-wrap:break-word;overflow-wrap:anywhere}
   .paper table.ent td.c{text-align:center}
   .paper table.ent td.a{text-align:right}
   .paper table.ent tr{page-break-inside:avoid;break-inside:avoid}
@@ -96,18 +96,18 @@
   .paper table.ent tfoot td{border:0;height:34px;padding:0}
   .paper .fn{font-size:9px;line-height:1.3;border-top:1px solid #000;padding-top:3px;margin-top:10px}
   .paper .totrow td{font-weight:700}
-  .previewbar{max-width:297mm;margin:0 auto 12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-  @page{size:A4 landscape;margin:10mm 12mm 14mm}
-  @page :first{@top-left{content:none}}
-  @page{@top-left{content:"Rotary Club of Makati – Check and Disbursement Documents Travel Log";font:bold 8px Arial}
-        @bottom-right{content:"P" counter(page) " of " counter(pages);font:9px Arial}}
+  .previewbar{max-width:11in;margin:0 auto 12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  @page{size:letter landscape;margin:0}
   @media print{
-    body{background:#fff}
-    header.top,.previewbar,.toast,main>section:not(#v-preview){display:none!important}
-    main{padding:0}.wrap{max-width:none;padding:0}
-    .paper{border:0;box-shadow:none;margin:0;padding:0;width:auto}
-    .paper .fn{position:fixed;left:0;right:0;bottom:0;background:#fff;margin:0}
+    html,body{width:auto;height:auto;overflow:visible;background:#fff}
+    header.top,.previewbar,.toast,main>.wrap>*:not(#v-preview){display:none!important}
+    main{padding:0;display:block}
+    .wrap{max-width:none;width:auto;padding:0;margin:0;display:block}
+    #v-preview{display:block!important}
+    .paper{border:0;box-shadow:none;margin:0;padding:13mm 15mm;width:100%;max-width:none;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+    .paper table{width:100%}
     .paper table.sig th,.paper table.ent th,.paper .meta{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .paper table.ent tfoot{display:none}
   }
   @media (max-width:640px){.sigcols{grid-template-columns:1fr}}
 </style>
@@ -164,7 +164,7 @@
       <div class="scroll">
         <table class="grid">
           <thead><tr>
-            <th>#</th><th style="width:21%">Payee Name</th><th style="width:15%">Check No.</th>
+            <th>#</th><th style="width:9%">CV#</th><th style="width:19%">Payee Name</th><th style="width:15%">Check No.</th>
             <th style="width:14%">Date</th><th style="width:14%">Amount (₱)</th><th>Remarks / Project Brief</th><th></th>
           </tr></thead>
           <tbody id="rows"></tbody>
@@ -218,8 +218,7 @@
     <div class="previewbar">
       <button class="btn" id="doPrint">Print / Save as PDF</button>
       <button class="btn ghost" id="backBtn">← Back</button>
-      <label class="f" style="flex-direction:row;align-items:center;gap:6px">Rows on sheet <input type="number" id="minRows" min="1" max="200" value="40" style="width:72px"></label>
-      <span class="muted">Tip: in the print dialog choose <b>A4 · Landscape</b> and turn off “Headers and footers”.</span>
+      <span class="muted">Tip: in the print dialog choose <b>Letter · Landscape</b>, Paper size <b>Letter</b>, Scale <b>100%</b> (not “Fit to page”), and turn off “Headers and footers”.</span>
     </div>
     <div class="paper" id="paper"></div>
   </section>
@@ -280,23 +279,35 @@ function show(v){
 $('nav').addEventListener('click',function(e){var b=e.target.closest('button');if(b)show(b.dataset.v)});
 
 /* ---------- editor ---------- */
+// CV# is typed in its own box, but saved/printed as part of Remarks: "CV#10035 brief..."
+function cleanCv(v){return String(v||'').replace(/^\s*CV\s*#?\s*/i,'').trim()}
+function fullRemarks(r){
+  var cv=cleanCv(r.cv),b=String(r.remarks||'').trim();
+  return (cv?'CV#'+cv:'')+(cv&&b?' ':'')+b;
+}
+function splitRemarks(t){
+  var m=/^\s*CV\s*#\s*(\S+)\s*([\s\S]*)$/i.exec(String(t||''));
+  return m?{cv:m[1],remarks:m[2].trim()}:{cv:'',remarks:String(t||'')};
+}
 function blankRow(prev){
-  return {payee:'',checkNo:prev?incCheck(prev.checkNo):'',checkDate:prev?prev.checkDate:($('logDate').value||todayIso()),amount:'',remarks:''};
+  return {cv:'',payee:'',checkNo:prev?incCheck(prev.checkNo):'',checkDate:prev?prev.checkDate:($('logDate').value||todayIso()),amount:'',remarks:''};
 }
 function renderRows(focusLast){
   var tb=$('rows');tb.innerHTML='';
   S.rows.forEach(function(r,i){
     var tr=document.createElement('tr');
     tr.innerHTML='<td class="n">'+(i+1)+'.</td>'+
+      '<td><input type="text" data-k="cv" inputmode="numeric" placeholder="CV#"></td>'+
       '<td><input type="text" data-k="payee" placeholder="Payee name"></td>'+
       '<td><input type="text" data-k="checkNo" inputmode="numeric" placeholder="Check no."></td>'+
       '<td><input type="date" data-k="checkDate"></td>'+
       '<td><input type="text" class="amt" data-k="amount" inputmode="decimal" placeholder="0.00"></td>'+
-      '<td><textarea data-k="remarks" placeholder="CV# and project brief"></textarea></td>'+
+      '<td><textarea data-k="remarks" placeholder="Project brief (CV# is added automatically)"></textarea></td>'+
       '<td><button class="btn danger sm" data-del="'+i+'" title="Remove line">✕</button></td>';
     [].forEach.call(tr.querySelectorAll('[data-k]'),function(el){
       el.value=r[el.dataset.k]||'';
       el.addEventListener('input',function(){r[el.dataset.k]=el.value;updateTotal()});
+      if(el.dataset.k==='cv')el.addEventListener('blur',function(){el.value=cleanCv(el.value);r.cv=el.value});
       if(el.dataset.k==='amount')el.addEventListener('blur',function(){if(el.value.trim()!==''){el.value=money(num(el.value));r.amount=el.value;updateTotal()}});
     });
     tb.appendChild(tr);
@@ -343,12 +354,14 @@ function newLog(){
   syncEntity();renderRows();suggestNo();
 }
 $('newLog').onclick=function(){
-  var dirty=S.rows.some(function(r){return r.payee||r.amount||r.remarks});
+  var dirty=S.rows.some(function(r){return r.payee||r.amount||r.remarks||r.cv});
   if(dirty&&!confirm('Clear the form and start a new log? Unsaved changes will be lost.'))return;
   newLog();
 };
 function payload(){
-  return {id:S.editingId,entity:S.entity,logNo:$('logNo').value,logDate:$('logDate').value,rows:S.rows};
+  return {id:S.editingId,entity:S.entity,logNo:$('logNo').value,logDate:$('logDate').value,rows:S.rows.map(function(r){
+    return {payee:r.payee,checkNo:r.checkNo,checkDate:r.checkDate,amount:r.amount,remarks:fullRemarks(r)};
+  })};
 }
 function save(thenPreview){
   var btns=['save','savePrev'].map($);btns.forEach(function(b){b.disabled=true});
@@ -364,8 +377,8 @@ $('save').onclick=function(){save(false)};
 $('savePrev').onclick=function(){save(true)};
 $('prevOnly').onclick=openPreviewFromEditor;
 function editorLog(){
-  var rows=S.rows.filter(function(r){return r.payee.trim()||num(r.amount)||r.checkNo.trim()||r.remarks.trim()}).map(function(r){
-    return {payee:r.payee,checkNo:r.checkNo,checkDate:r.checkDate,amount:num(r.amount),remarks:r.remarks};
+  var rows=S.rows.filter(function(r){return r.payee.trim()||num(r.amount)||r.checkNo.trim()||r.remarks.trim()||cleanCv(r.cv)}).map(function(r){
+    return {payee:r.payee,checkNo:r.checkNo,checkDate:r.checkDate,amount:num(r.amount),remarks:fullRemarks(r)};
   });
   return {entity:S.entity,logNo:$('logNo').value,logDate:$('logDate').value,rows:rows};
 }
@@ -376,7 +389,8 @@ function loadIntoEditor(id){
   S.editingId=id;S.entity=l.entity;
   $('logNo').value=l.logNo;$('logDate').value=l.logDate;
   S.rows=S.entries.filter(function(e){return e.logId===id}).sort(function(a,b){return a.line-b.line}).map(function(e){
-    return {payee:e.payee,checkNo:e.checkNo,checkDate:e.checkDate,amount:money(e.amount),remarks:e.remarks};
+    var sp=splitRemarks(e.remarks);
+    return {cv:sp.cv,payee:e.payee,checkNo:e.checkNo,checkDate:e.checkDate,amount:money(e.amount),remarks:sp.remarks};
   });
   if(!S.rows.length)S.rows.push(blankRow());
   $('editBadge').textContent='Editing saved log';$('editBadge').classList.remove('hide');
@@ -387,8 +401,8 @@ function loadIntoEditor(id){
 function renderSheet(log){
   var ent=S.cfg.entities[log.entity];
   S.lastLog=log;
-  var minRows=Math.max(1,Math.min(200,parseInt($('minRows').value,10)||40));
-  var n=Math.max(log.rows.length,minRows);
+  log.rows=log.rows.filter(function(r){return String(r.payee||'').trim()||String(r.checkNo||'').trim()||String(r.remarks||'').trim()||num(r.amount)});
+  var n=log.rows.length;
   var h='';
   h+='<h1 class="tl">TRAVEL LOG</h1>';
   h+='<div class="org">'+esc(ent.name)+'<br>'+esc(ent.short)+'<br>Check and Disbursement Documents</div>';
@@ -412,12 +426,10 @@ function renderSheet(log){
       '<td class="a">'+(r&&(r.amount||r.payee)?esc(peso(r.amount)):'')+'</td>'+
       '<td>'+(r?esc(r.remarks):'')+'</td><td></td><td></td></tr>';
   }
-  h+='</tbody><tfoot><tr><td colspan="8"></td></tr></tfoot></table>';
-  h+='<div class="fn"><sup>1</sup> Set A should sign the first or left signature box of the check. Ensure that all reviewers, including Controller for disbursements above P100,000, have reviewed and signed off on the disbursement voucher before having the checks signed by authorized check signatories.</div>';
+  h+='</tbody></table>';
   $('paper').innerHTML=h;
 }
 $('doPrint').onclick=function(){window.print()};
-$('minRows').addEventListener('input',function(){if(S.lastLog)renderSheet(S.lastLog)});
 $('backBtn').onclick=function(){show(S.prevFrom)};
 
 /* ---------- inventory ---------- */
@@ -452,29 +464,45 @@ function renderInventory(){
     '<div class="stat"><b>'+f.logs.length+'</b><span>Travel logs</span></div>'+
     '<div class="stat"><b>'+f.entries.length+'</b><span>Checks listed</span></div>'+
     '<div class="stat"><b>₱'+money(total)+'</b><span>Total amount</span></div>';
-  var el=$('invTable'),h;
-  if(S.mode==='logs'){
-    if(!f.logs.length){el.innerHTML='<div class="empty">No travel logs match. Create one in “New / Edit Log”.</div>';return}
-    h='<table class="list"><thead><tr><th>Log No.</th><th>Org</th><th>Log date</th><th class="r">Checks</th><th class="r">Total</th><th>Last saved</th><th>Actions</th></tr></thead><tbody>';
-    f.logs.forEach(function(l){
-      h+='<tr><td><b>'+esc(l.logNo)+'</b></td><td><span class="tag '+esc(l.entity)+'">'+esc(l.entity)+'</span></td>'+
-        '<td>'+esc(longDate(l.logDate))+'</td><td class="r">'+l.checks+'</td><td class="r">'+esc(peso(l.total))+'</td>'+
-        '<td class="muted">'+esc(l.updatedAt)+'</td>'+
-        '<td><div class="acts"><button class="btn ghost sm" data-open="'+esc(l.id)+'">Edit</button>'+
-        '<button class="btn ghost sm" data-print="'+esc(l.id)+'">Print</button>'+
-        '<button class="btn danger sm" data-rm="'+esc(l.id)+'">Delete</button></div></td></tr>';
-    });
-    el.innerHTML=h+'</tbody></table>';
-  }else{
-    if(!f.entries.length){el.innerHTML='<div class="empty">No checks match.</div>';return}
-    h='<table class="list"><thead><tr><th>Log No.</th><th>Org</th><th>Payee</th><th>Check No.</th><th>Date</th><th class="r">Amount</th><th>Remarks</th></tr></thead><tbody>';
-    f.entries.forEach(function(e){
-      h+='<tr><td><a href="#" data-open="'+esc(e.logId)+'">'+esc(e.log.logNo)+'</a></td><td><span class="tag '+esc(e.log.entity)+'">'+esc(e.log.entity)+'</span></td>'+
-        '<td>'+esc(e.payee)+'</td><td>'+esc(e.checkNo)+'</td><td>'+esc(shortDate(e.checkDate))+'</td>'+
-        '<td class="r">'+esc(peso(e.amount))+'</td><td>'+esc(e.remarks)+'</td></tr>';
-    });
-    el.innerHTML=h+'</tbody></table>';
-  }
+  var el=$('invTable'),h='';
+  var sel=$('fEnt').value,any=false;
+  ['RCM','MRCFI'].forEach(function(o){
+    if(sel&&sel!==o)return;
+    var lg=f.logs.filter(function(l){return l.entity===o});
+    var en=f.entries.filter(function(e){return e.log.entity===o});
+    var tot=en.reduce(function(x,e){return x+e.amount},0);
+    var nm=S.cfg.entities[o].name;
+    any=true;
+    h+='<div style="margin:6px 0 22px"><h2 style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span class="tag '+o+'">'+o+'</span>'+esc(nm)+
+      '<span class="muted" style="font-weight:400;font-size:13px">'+lg.length+' log'+(lg.length===1?'':'s')+' · '+en.length+' check'+(en.length===1?'':'s')+' · ₱'+money(tot)+'</span></h2>';
+    if(S.mode==='logs'){
+      if(!lg.length)h+='<div class="empty" style="padding:16px">No '+o+' travel logs match.</div>';
+      else{
+        h+='<table class="list"><thead><tr><th>Log No.</th><th>Log date</th><th class="r">Checks</th><th class="r">Total</th><th>Last saved</th><th>Actions</th></tr></thead><tbody>';
+        lg.forEach(function(l){
+          h+='<tr><td><b>'+esc(l.logNo)+'</b></td><td>'+esc(longDate(l.logDate))+'</td><td class="r">'+l.checks+'</td><td class="r">'+esc(peso(l.total))+'</td>'+
+            '<td class="muted">'+esc(l.updatedAt)+'</td>'+
+            '<td><div class="acts"><button class="btn ghost sm" data-open="'+esc(l.id)+'">Edit</button>'+
+            '<button class="btn ghost sm" data-print="'+esc(l.id)+'">Print</button>'+
+            '<button class="btn danger sm" data-rm="'+esc(l.id)+'">Delete</button></div></td></tr>';
+        });
+        h+='</tbody></table>';
+      }
+    }else{
+      if(!en.length)h+='<div class="empty" style="padding:16px">No '+o+' checks match.</div>';
+      else{
+        h+='<table class="list"><thead><tr><th>Log No.</th><th>Payee</th><th>Check No.</th><th>Date</th><th class="r">Amount</th><th>Remarks</th></tr></thead><tbody>';
+        en.forEach(function(e){
+          h+='<tr><td><a href="#" data-open="'+esc(e.logId)+'">'+esc(e.log.logNo)+'</a></td>'+
+            '<td>'+esc(e.payee)+'</td><td>'+esc(e.checkNo)+'</td><td>'+esc(shortDate(e.checkDate))+'</td>'+
+            '<td class="r">'+esc(peso(e.amount))+'</td><td>'+esc(e.remarks)+'</td></tr>';
+        });
+        h+='</tbody></table>';
+      }
+    }
+    h+='</div>';
+  });
+  el.innerHTML=any?h:'<div class="empty">No travel logs match.</div>';
 }
 $('invTable').addEventListener('click',function(e){
   var t=e.target.closest('[data-open],[data-print],[data-rm]');if(!t)return;
