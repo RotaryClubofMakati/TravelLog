@@ -74,7 +74,6 @@
   .sigcols textarea{width:100%;min-height:110px}
   .hide{display:none!important}
   /* gate */
-  #gate{max-width:360px;margin:80px auto}
   /* ===== printable sheet (screen preview + print) ===== */
   .paper{background:#fff;width:11in;max-width:100%;margin:0 auto;padding:10mm 12mm 14mm;border:1px solid var(--line);box-shadow:0 2px 14px rgba(0,0,0,.08);color:#000;font-family:Arial,Helvetica,sans-serif}
   .paper h1.tl{font-size:16px;letter-spacing:.3px;color:#156082;margin:0 0 8px;font-weight:700}
@@ -126,13 +125,6 @@
 </header>
 
 <main><div class="wrap">
-
-  <div id="gate" class="card hide">
-    <h2>Passcode required</h2>
-    <label class="f">Passcode<input type="text" id="gateIn" autocomplete="off"></label>
-    <div class="spacer"></div>
-    <button class="btn" id="gateBtn">Open</button>
-  </div>
 
   <div id="loading" class="empty">Loading…</div>
 
@@ -572,7 +564,6 @@ function reload(){
   });
 }
 function start(){
-  $('gate').classList.add('hide');
   reload().then(function(){
     $('loading').classList.add('hide');
     $('v-editor').classList.remove('hide');
@@ -580,26 +571,15 @@ function start(){
   }).catch(function(e){
     var m=errMsg(e);
     $('v-editor').classList.add('hide');
-    if(m==='AUTH'){
-      S.code='';try{sessionStorage.removeItem('tl_code')}catch(x){}
-      $('loading').classList.add('hide');$('gate').classList.remove('hide');
-      if(S.triedCode)toast('Wrong passcode.',true);
-    }else if(m==='NETWORK'){
+    if(m==='NETWORK'){
       $('loading').classList.remove('hide');
       $('loading').innerHTML='Could not reach the server.<br><small>Check that the Apps Script web app is deployed with access “Anyone”, that API_URL in this page is the current /exec link, and that you are online.</small>';
     }else{
       $('loading').classList.remove('hide');
-      $('loading').innerHTML=esc(m.replace(/^(SETUP|LOCKED):\s*/,''));
+      $('loading').innerHTML=esc(m);
     }
   });
 }
-$('gateBtn').onclick=function(){
-  S.code=$('gateIn').value;S.triedCode=true;
-  try{sessionStorage.setItem('tl_code',S.code)}catch(x){}
-  $('loading').classList.remove('hide');start();
-};
-$('gateIn').addEventListener('keydown',function(e){if(e.key==='Enter')$('gateBtn').click()});
-try{S.code=sessionStorage.getItem('tl_code')||''}catch(x){}
 start();
 })();
 </script>
