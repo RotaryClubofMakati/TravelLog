@@ -73,7 +73,11 @@
   .sigcols{display:grid;grid-template-columns:1fr 1fr;gap:14px}
   .sigcols textarea{width:100%;min-height:110px}
   .hide{display:none!important}
-  /* gate */
+  /* saving overlay */
+  .busy{position:fixed;inset:0;background:rgba(15,47,102,.45);z-index:100;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;color:#fff;font-weight:700;font-size:16px;cursor:wait}
+  .busy .spin{width:44px;height:44px;border:5px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @media print{.busy{display:none!important}}
   /* ===== printable sheet (screen preview + print) ===== */
   .paper{background:#fff;width:11in;max-width:100%;margin:0 auto;padding:10mm 12mm 14mm;border:1px solid var(--line);box-shadow:0 2px 14px rgba(0,0,0,.08);color:#000;font-family:Arial,Helvetica,sans-serif}
   .paper h1.tl{font-size:16px;letter-spacing:.3px;color:#156082;margin:0 0 8px;font-weight:700}
@@ -217,6 +221,7 @@
 
 </div></main>
 
+<div id="busy" class="busy hide"><div class="spin"></div><div id="busyMsg">Saving… please wait</div></div>
 <div id="toast" class="toast hide"></div>
 
 <script>
@@ -341,7 +346,7 @@ $('logDate').addEventListener('change',function(){
   if(!S.editingId&&/^(RCM|MRCFI)-\d{4}-\d{3}$/.test($('logNo').value))suggestNo();
 });
 function newLog(){
-  S.editingId=null;S.rows=[blankRow()];
+  S.editingId=null;S.pendingId=null;S.rows=[blankRow()];
   $('logDate').value=todayIso();$('editBadge').classList.add('hide');
   syncEntity();renderRows();suggestNo();
 }
@@ -355,15 +360,31 @@ function payload(){
     return {payee:r.payee,checkNo:r.checkNo,checkDate:r.checkDate,amount:r.amount,remarks:fullRemarks(r)};
   })};
 }
+function newId(){return 'L'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function setBusy(on,msg){
+  S.busy=on;
+  if(msg)$('busyMsg').textContent=msg;
+  $('busy').classList.toggle('hide',!on);
+  ['save','savePrev','prevOnly','newLog','addRow','autoNo'].forEach(function(id){$(id).disabled=on});
+}
 function save(thenPreview){
-  var btns=['save','savePrev'].map($);btns.forEach(function(b){b.disabled=true});
-  return call('api_saveLog',payload()).then(function(r){
-    S.editingId=r.id;toast('Log saved ✓');return reload();
+  if(S.busy)return Promise.resolve(); // already saving: ignore extra clicks (prevents duplicates)
+  if(!S.pendingId&&!S.editingId)S.pendingId=newId(); // same id is reused on retry, so the server updates instead of adding a copy
+  var p=payload();p.id=S.editingId||S.pendingId;
+  setBusy(true,'Saving… please wait');
+  return call('api_saveLog',p).then(function(r){
+    S.editingId=r.id;S.pendingId=null;toast('Log saved ✓');
+    setBusy(true,'Refreshing…');
+    return reload();
   }).then(function(){
     var l=S.logs.filter(function(x){return x.id===S.editingId})[0];
     if(l){$('editBadge').textContent='Editing saved log';$('editBadge').classList.remove('hide')}
+    setBusy(false);
     if(thenPreview)openPreviewFromEditor();
-  }).catch(function(e){toast(errMsg(e),true)}).then(function(){btns.forEach(function(b){b.disabled=false})});
+  }).catch(function(e){
+    setBusy(false);
+    toast(e.message==='NETWORK'?'Connection problem. The log may have saved — check Inventory before saving again.':errMsg(e),true);
+  });
 }
 $('save').onclick=function(){save(false)};
 $('savePrev').onclick=function(){save(true)};
