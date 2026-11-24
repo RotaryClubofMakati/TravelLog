@@ -99,11 +99,6 @@
   .paper table.ent tfoot td{border:0;height:34px;padding:0}
   .paper .fn{font-size:9px;line-height:1.3;border-top:1px solid #000;padding-top:3px;margin-top:10px}
   .paper .totrow td{font-weight:700}
-  .paper table.ent tr.blank td{height:30px;text-align:center;vertical-align:middle;padding:2px}
-  .paper table.ent tr.blank img{height:24px;max-width:90%;object-fit:contain;opacity:.85;vertical-align:middle}
-  .paper .pg{break-after:page;page-break-after:always}
-  .paper .pg:last-child{break-after:auto;page-break-after:auto}
-  .paper .pg+.pg{padding-top:0}
   .previewbar{max-width:11in;margin:0 auto 12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
   @page{size:letter landscape;margin:0}
   @media print{
@@ -237,9 +232,6 @@ var $=function(id){return document.getElementById(id)};
 
 /* ---------- server bridge (Google Apps Script web app) ---------- */
 // Your deployed Apps Script web app URL (Deploy > Manage deployments > Web app URL).
-// Logos used to fill the empty space under the table (so the page isn't left blank).
-// Put your logo files in the same GitHub folder as index.html and set the file names here.
-var LOGOS={RCM:'logo-rcm.png',MRCFI:'logo-mrcfi.png'};
 var API_URL='https://script.google.com/macros/s/AKfycbzjdHretbErKX3c7N-1ryejOly9EzeXfy3GJZ-siBdiz5cfdaRl-tCJupyWuTxmiu9yIQ/exec';
 
 function call(fn){
@@ -436,24 +428,18 @@ function renderSheet(log){
   st+='</table>';
   h+=st;
   h+='<div class="meta"><div>Travel Log No:<span>'+esc(log.logNo)+'</span></div><div>Date:<span>'+esc(longDate(log.logDate))+'</span></div></div>';
-  var PER=8,logo=LOGOS[log.entity];
-  var head='<table class="ent"><colgroup><col style="width:4%"><col style="width:20%"><col style="width:12%"><col style="width:9%"><col style="width:11%"><col style="width:30%"><col style="width:7%"><col style="width:7%"></colgroup>'+
-    '<thead><tr><th rowspan="2">No.</th><th rowspan="2">Payee Name</th><th rowspan="2">Check No.</th><th rowspan="2">Date</th><th rowspan="2">Amount</th><th rowspan="2">Remarks/Project Brief</th><th colspan="2">Signatories<sup>1</sup></th></tr><tr><th>Set A</th><th>Set B</th></tr></thead><tbody>';
-  var total=Math.max(1,Math.ceil(n/PER))*PER;   // pad last page to 8 rows
-  for(var j=0;j<total;j++){
-    if(j%PER===0)h+=(j?'</tbody></table></div>':'')+'<div class="pg">'+head;
+  h+='<table class="ent"><colgroup><col style="width:4%"><col style="width:20%"><col style="width:12%"><col style="width:9%"><col style="width:11%"><col style="width:30%"><col style="width:7%"><col style="width:7%"></colgroup>';
+  h+='<thead><tr><th rowspan="2">No.</th><th rowspan="2">Payee Name</th><th rowspan="2">Check No.</th><th rowspan="2">Date</th><th rowspan="2">Amount</th><th rowspan="2">Remarks/Project Brief</th><th colspan="2">Signatories<sup>1</sup></th></tr><tr><th>Set A</th><th>Set B</th></tr></thead>';
+  h+='<tbody>';
+  for(var j=0;j<n;j++){
     var r=log.rows[j];
-    if(!r){
-      h+='<tr class="blank"><td colspan="8">'+(logo?'<img src="'+esc(logo)+'" alt="" onerror="this.style.display=\'none\'">':'')+'</td></tr>';
-      continue;
-    }
     h+='<tr><td class="c">'+(j+1)+'.</td>'+
-      '<td>'+esc(r.payee)+'</td><td class="c">'+esc(r.checkNo)+'</td>'+
-      '<td class="c">'+esc(shortDate(r.checkDate))+'</td>'+
-      '<td class="a">'+((r.amount||r.payee)?esc(peso(r.amount)):'')+'</td>'+
-      '<td>'+esc(r.remarks)+'</td><td></td><td></td></tr>';
+      '<td>'+(r?esc(r.payee):'')+'</td><td class="c">'+(r?esc(r.checkNo):'')+'</td>'+
+      '<td class="c">'+(r?esc(shortDate(r.checkDate)):'')+'</td>'+
+      '<td class="a">'+(r&&(r.amount||r.payee)?esc(peso(r.amount)):'')+'</td>'+
+      '<td>'+(r?esc(r.remarks):'')+'</td><td></td><td></td></tr>';
   }
-  h+='</tbody></table></div>';
+  h+='</tbody></table>';
   $('paper').innerHTML=h;
 }
 $('doPrint').onclick=function(){window.print()};
