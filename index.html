@@ -328,8 +328,22 @@ $('addRow').onclick=function(){
 };
 $('entSeg').addEventListener('click',function(e){
   var b=e.target.closest('button');if(!b)return;
-  if(S.editingId)return toast('Organization can’t change on a saved log. Start a new log instead.',true);
-  S.entity=b.dataset.e;syncEntity();suggestNo();
+  var target=b.dataset.e;
+  if(S.editingId){
+    // Wrong-record fix: move a saved log to the other organization
+    if(target===S.entity)return;
+    if(S.busy)return;
+    if(!confirm('Move this log from '+S.entity+' to '+target+'?\n\nA new '+target+' Travel Log No. will be suggested. Click "Save log" afterwards to apply the change.'))return;
+    var from=S.entity;
+    S.entity=target;syncEntity();
+    call('api_nextNo',S.entity,$('logDate').value||todayIso()).then(function(n){
+      $('logNo').value=n;
+      $('editBadge').textContent='Organization changed '+from+' → '+target+' (not saved yet — click Save log)';
+      $('editBadge').classList.remove('hide');
+    }).catch(function(er){toast(errMsg(er),true)});
+    return;
+  }
+  S.entity=target;syncEntity();suggestNo();
 });
 function syncEntity(){
   [].forEach.call($('entSeg').children,function(b){b.classList.toggle('on',b.dataset.e===S.entity)});
